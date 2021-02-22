@@ -1,1 +1,1 @@
-# NodeJS_YelpCamp_v2_Demo
+# NodeJS_YelpCamp_Demo

@@ -1,0 +1,39 @@
+<% layout('layouts/boilerplate')%>
+
+       
+<div class="row">
+    <h1 class="text-center">Edit Campground</h1>
+    <div class="col-6 offset-4">
+        <form action="/campgrounds/<%=campground._id%>?_method=PUT" method = "POST">
+            <div class="mb-3">
+                <label class="form-label"for="title">Title</label>
+                <input class="form-control" type="text" id="title" name ="campground[title]" value="<%=campground.title%>">
+            </div>
+            <div class="mb-3">
+                <label class="form-label"for="location">Location</label>
+                <input class="form-control"type="text" id="location" name ="campground[location]" value="<%=campground.location%>">
+            </div>
+            <div class="mb-3">
+                <label class="form-label"for="image">Image URL</label>
+                <input class="form-control"type="text" id="image" name ="campground[image]" value="<%=campground.image%>">
+            </div>
+            <div class="mb-3">
+                <label class="form-label"for="price">Camoground Price</label>
+                <div class="input-group"><!--沒用這個包起來的化，在葉面上 下面那兩行會分開。-->
+                    <span class="input-group-text" id="price-label">$</span>
+                    <input type="text" class="form-control" id="price"
+                    placeholder="0.00" aria-label="price" aria-describedby="price-label"name ="campground[price]" value="<%=campground.price%>">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label"for="desciption">Desciption</label>
+                <textarea class="form-control"type="text" id="desciption" name ="campground[desciption]"><%=campground.desciption%></textarea>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-info">Update campground</button>
+            </div>
+            
+        </form>
+        <a href="/campgrounds/<%=campground._id%>">回到campground</a>
+    </div>
+</div>
