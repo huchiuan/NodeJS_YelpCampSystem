@@ -3,7 +3,8 @@ const express = require('express');
 const path = require ('path');
 const mongoose=require('mongoose');
 const ejsMate = require('ejs-mate');
-const Joi = require('joi');
+
+const {campgroundSchema} = require('./schema.js');
 const catchAsync = require('./utils/catchAsync');
 const ExpressError=require('./utils/ExpressError');
 const methodOverride = require('method-override');
@@ -33,6 +34,26 @@ app.set('views',path.join(__dirname,'views')); //去views資料夾拿ejs
 app.use(express.urlencoded({extended:true})); //可以解析req內的東西
 app.use(methodOverride('_method'));
 
+
+
+const validateCampground=(req,res,next)=>{
+
+   
+
+   const {error} = campgroundSchema.validate(req.body)
+
+
+   if(error){
+      const msg=error.details.map(el=> el.message).join(',')//el = each element 每個元素會回傳el.message 再加上,號
+      throw new ExpressError(msg,400);
+   }else{
+      next();
+   }
+}
+
+
+
+
 app.get('/',(req,res)=>{
     res.send('home')
 })
@@ -49,7 +70,7 @@ app.get('/campgrounds/new',(req,res)=>{
     res.render('campgrounds/new')
  })
 
-app.post('/campgrounds',catchAsync(async(req,res,next)=>{ // new頁面的function   next是要讓這個rout可以跳到下面的middleeware
+app.post('/campgrounds',validateCampground ,catchAsync(async(req,res,next)=>{ // new頁面的function   next是要讓這個rout可以跳到下面的middleeware
   // 用我寫的catchAsync model 包起來 可以再產生錯誤的時候跳到model 呼叫裡面要做的事情
 
    //if(!req.body.campground)throw new ExpressError('非法的資料',400);
@@ -57,22 +78,6 @@ app.post('/campgrounds',catchAsync(async(req,res,next)=>{ // new頁面的functio
    //但用這航太不方便 要驗證module內的所有的變數
    //所以使用joi套件做驗證
 
-   const campgroundSchema = Joi.object({
-      campground: Joi.object({
-         title : Joi.string().required(),
-         price: Joi.number().required().min(0),
-         image:Joi.string().required(),
-         location:Joi.string().required(),
-         description:Joi.string().required(),
-      }).required()
-   })
-   const {error} = campgroundSchema.validate(req.body)
-
-
-   if(error){
-      const msg=error.details.map(el=> el.message).join(',')//el = each element 每個元素會回傳el.message 再加上,號
-      throw new ExpressError(msg,400);
-   }
     console.log(req.body.campground);//{ title: '333333', location: '33322' }
     const campground = await Campground(req.body.campground);
     await campground.save();//moogose的語法
@@ -92,7 +97,7 @@ app.get('/campgrounds/:id',catchAsync(async(req,res)=>{
     res.render('campgrounds/edit',{campground});
  }))
 
- app.put('/campgrounds/:id',catchAsync(async(req,res)=>{
+ app.put('/campgrounds/:id',validateCampground,catchAsync(async(req,res)=>{
     const campground = await Campground.findByIdAndUpdate(req.params.id,{...req.body.campground});
     //const aString = "foo"
     //const chars = [ ...aString ] // [ "f", "o", "o" ]
