@@ -4,6 +4,7 @@ const path = require ('path');
 const mongoose=require('mongoose');
 const ejsMate = require('ejs-mate');
 const catchAsync = require('./utils/catchAsync');
+const ExpressError=require('./utils/ExpressError');
 const methodOverride = require('method-override');
 const Campground=require('./models/campground');
 
@@ -48,6 +49,10 @@ app.get('/campgrounds/new',(req,res)=>{
 
 app.post('/campgrounds',catchAsync(async(req,res,next)=>{ // new頁面的function   next是要讓這個rout可以跳到下面的middleeware
   // 用我寫的catchAsync model 包起來 可以再產生錯誤的時候跳到model 呼叫裡面要做的事情
+
+   if(!req.body.campground)throw new ExpressError('非法的資料',400);
+   //當此行發生 會觸發catchAsync 丟到 這行app.use((err,req,res,next)=>{
+
     console.log(req.body.campground);//{ title: '333333', location: '33322' }
     const campground = await Campground(req.body.campground);
     await campground.save();//moogose的語法
@@ -81,9 +86,29 @@ app.get('/campgrounds/:id',catchAsync(async(req,res)=>{
     res.redirect('/campgrounds');
  }))
 
-
+app.all('*',(req,res,next)=>{  //原本此fun就是用在如果打一個錯的路徑 會send 失敗的一個路徑
+   next(new ExpressError('網頁不存在',404))//現在會傳入下個middleware
+})
 app.use((err,req,res,next)=>{
-   res.send('有東西壞了');
+   const{statusCode=500,message='有東西有問題'} =err ;
+    //常見的情況時，當從伺服器拿到的資料是帶有一大包內容的物件，
+   //而我們只需要用到該物件裡面的其中一些屬性，這時就很適合使用解構賦值。解構賦值（Destructuring assignment）
+   ///*範例 一般從物件取出屬性值，並建立新變數的做法 */
+   // const name = product.name;
+   // const description = product.description;
+   //------------------------------------------------------
+   /* 物件的解構賦值 */
+
+   // 自動產生名為 name 和 description 的變數
+   // 並把 product 物件內的 name 和 description 當作變數的值
+   // const { name, description } = product;
+
+   // console.log(name);         // iPhone
+   // console.log(description);  // 全面創新的三相機系統，身懷萬千本領，卻簡練易用。...
+   if(!err.message) err.message="有東西錯了啦"
+   res.status(statusCode).render('error',{err}); 
+   //用render 可以把後面那個物件或變數 傳到ejs葉面的<%=%>座使用
+   //res.send('有東西壞了');
 })
 app.listen(3000,()=>{
    console.log('Serving on port 3000')
