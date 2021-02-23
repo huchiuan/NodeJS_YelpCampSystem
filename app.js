@@ -3,10 +3,12 @@ const express = require('express');
 const path = require ('path');
 const mongoose=require('mongoose');
 const ejsMate = require('ejs-mate');
+const Joi = require('joi');
 const catchAsync = require('./utils/catchAsync');
 const ExpressError=require('./utils/ExpressError');
 const methodOverride = require('method-override');
 const Campground=require('./models/campground');
+const { required } = require('joi');
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp',{
     useNewUrlParser:true,
@@ -50,9 +52,27 @@ app.get('/campgrounds/new',(req,res)=>{
 app.post('/campgrounds',catchAsync(async(req,res,next)=>{ // new頁面的function   next是要讓這個rout可以跳到下面的middleeware
   // 用我寫的catchAsync model 包起來 可以再產生錯誤的時候跳到model 呼叫裡面要做的事情
 
-   if(!req.body.campground)throw new ExpressError('非法的資料',400);
+   //if(!req.body.campground)throw new ExpressError('非法的資料',400);
    //當此行發生 會觸發catchAsync 丟到 這行app.use((err,req,res,next)=>{
+   //但用這航太不方便 要驗證module內的所有的變數
+   //所以使用joi套件做驗證
 
+   const campgroundSchema = Joi.object({
+      campground: Joi.object({
+         title : Joi.string().required(),
+         price: Joi.number().required().min(0),
+         image:Joi.string().required(),
+         location:Joi.string().required(),
+         description:Joi.string().required(),
+      }).required()
+   })
+   const {error} = campgroundSchema.validate(req.body)
+
+
+   if(error){
+      const msg=error.details.map(el=> el.message).join(',')//el = each element 每個元素會回傳el.message 再加上,號
+      throw new ExpressError(msg,400);
+   }
     console.log(req.body.campground);//{ title: '333333', location: '33322' }
     const campground = await Campground(req.body.campground);
     await campground.save();//moogose的語法
