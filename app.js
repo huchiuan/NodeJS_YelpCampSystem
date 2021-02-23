@@ -3,6 +3,7 @@ const express = require('express');
 const path = require ('path');
 const mongoose=require('mongoose');
 const ejsMate = require('ejs-mate');
+const catchAsync = require('./utils/catchAsync');
 const methodOverride = require('method-override');
 const Campground=require('./models/campground');
 
@@ -33,11 +34,11 @@ app.get('/',(req,res)=>{
     res.send('home')
 })
 
-app.get('/campgrounds',async(req,res)=>{
+app.get('/campgrounds',catchAsync(async(req,res)=>{
    const campgrounds = await Campground.find({});  //Model.find() 是mongoose裡面的fun 可以去mongodb拿資料 (此頁的yelp-camp，)
    //而yelp-camp有東西是因為在SEEDS裡面建立完成。
    res.render('campgrounds/index',{campgrounds})
-})
+}))
 
 
 app.get('/campgrounds/new',(req,res)=>{
@@ -45,40 +46,45 @@ app.get('/campgrounds/new',(req,res)=>{
     res.render('campgrounds/new')
  })
 
-app.post('/campgrounds',async(req,res)=>{
+app.post('/campgrounds',catchAsync(async(req,res,next)=>{ // new頁面的function   next是要讓這個rout可以跳到下面的middleeware
+  // 用我寫的catchAsync model 包起來 可以再產生錯誤的時候跳到model 呼叫裡面要做的事情
     console.log(req.body.campground);//{ title: '333333', location: '33322' }
     const campground = await Campground(req.body.campground);
     await campground.save();//moogose的語法
     res.redirect(`/campgrounds/${campground._id}`)//._id 是在DB裡產生的 為了要拿取所以要加_ 代表拿自己的
-})
+ 
+}))
 
 
-app.get('/campgrounds/:id',async(req,res)=>{
+app.get('/campgrounds/:id',catchAsync(async(req,res)=>{
     const campground = await Campground.findById(req.params.id);
     res.render('campgrounds/show',{campground});
- })
+ }))
 
 
- app.get('/campgrounds/:id/edit',async(req,res)=>{
+ app.get('/campgrounds/:id/edit',catchAsync(async(req,res)=>{
     const campground = await Campground.findById(req.params.id);
     res.render('campgrounds/edit',{campground});
- })
+ }))
 
- app.put('/campgrounds/:id',async(req,res)=>{
+ app.put('/campgrounds/:id',catchAsync(async(req,res)=>{
     const campground = await Campground.findByIdAndUpdate(req.params.id,{...req.body.campground});
     //const aString = "foo"
     //const chars = [ ...aString ] // [ "f", "o", "o" ]
     console.log(req.body.campground);
     res.redirect(`/campgrounds/${campground._id}`)
- })
+ }))
 
- app.delete('/campgrounds/:id',async(req,res)=>{
+ app.delete('/campgrounds/:id',catchAsync(async(req,res)=>{
     const {id} =req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
- })
+ }))
 
 
+app.use((err,req,res,next)=>{
+   res.send('有東西壞了');
+})
 app.listen(3000,()=>{
    console.log('Serving on port 3000')
 })
