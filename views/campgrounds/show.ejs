@@ -1,6 +1,6 @@
 <% layout('layouts/boilerplate')%>
 <div class="row">
-    <div class="col-6 offset-3">
+    <div class="col-6 ">
         <div class="card mb-3 ">
             <img src="<%= campground.image%>" class="card-img-top" alt="...">
             <div class="card-body">
@@ -23,31 +23,38 @@
             </div>
           </div>
 
-          <h2>留言區</h2>
-        <form action="/campgrounds/<%=campground._id%>/reviews" method="POST" class="mb-3 validated-form" novalidate>
-          <!--novalidate告訴表單不要使用HTML驗證
-        然後使用validated-form(在boilerplate那隻)-->
-          <div class="mb-3">
-            <label class="form-label" for="rating">評分</label>
-            <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
-          </div>
-          <div class="mb-3">
-            <label class="form-label" for="body">評論:</label>
-            <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
-         <!--它用於創建0的底部邊距（margin-bottom:0）-->
-
-            <div class="valid-feedback">
-              內容正確!
-          </div>
-          </div> 
-          <button class="btn btn-success">Submit</button>
-        </form>
-        <% for(let review of campground.reviews){ %>
+      
+    </div>
+    <!--這個div 的 col-6 可以切開螢幕呈現的比例 -->
+    <div class="col-6">
+      <h2>留言區</h2>
+      <form action="/campgrounds/<%=campground._id%>/reviews" method="POST" class="mb-3 validated-form" novalidate>
+        <!--novalidate告訴表單不要使用HTML驗證
+      然後使用validated-form(在boilerplate那隻)-->
         <div class="mb-3">
-          <p>評分:<%= review.rating  %> </p>
-          <p>回覆:<%= review.body  %> </p>
+          <label class="form-label" for="rating">評分</label>
+          <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
         </div>
-        <% }%>
+        <div class="mb-3">
+          <label class="form-label" for="body">評論:</label>
+          <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
+       <!--它用於創建0的底部邊距（margin-bottom:0）-->
+
+          <div class="valid-feedback">
+            內容正確!
+        </div>
+        </div> 
+        <button class="btn btn-success">Submit</button>
+      </form>
+      <% for(let review of campground.reviews){ %>
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">評分:<%= review.rating  %> </h5>
+          <p class="card-text">回覆:<%= review.body  %></p>
+       
+        </div>
+      </div>
+      <% }%>
 
     </div>
 </div>
