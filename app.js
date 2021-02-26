@@ -4,11 +4,12 @@ const path = require ('path');
 const mongoose=require('mongoose');
 const ejsMate = require('ejs-mate');
 
-const {campgroundSchema} = require('./schema.js');
+const {campgroundSchema,reviewSchema} = require('./schema.js'); //驗證表單用
 const catchAsync = require('./utils/catchAsync');
 const ExpressError=require('./utils/ExpressError');
 const methodOverride = require('method-override');
 const Campground=require('./models/campground');
+const Review=require('./models/review');
 const { required } = require('joi');
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp',{
@@ -37,12 +38,7 @@ app.use(methodOverride('_method'));
 
 
 const validateCampground=(req,res,next)=>{
-
-   
-
    const {error} = campgroundSchema.validate(req.body)//joi的FUN
-
-
    if(error){
       const msg=error.details.map(el=> el.message).join(',')//el = each element 每個元素會回傳el.message 再加上,號
       throw new ExpressError(msg,400);
@@ -52,6 +48,15 @@ const validateCampground=(req,res,next)=>{
 }
 
 
+const validateReview=(req,res,next)=>{
+   const {error} = reviewSchema.validate(req.body)//joi的FUN
+   if(error){
+      const msg=error.details.map(el=> el.message).join(',')//el = each element 每個元素會回傳el.message 再加上,號
+      throw new ExpressError(msg,400);
+   }else{
+      next();
+   }
+}
 
 
 app.get('/',(req,res)=>{
@@ -87,7 +92,8 @@ app.post('/campgrounds',validateCampground ,catchAsync(async(req,res,next)=>{ //
 
 
 app.get('/campgrounds/:id',catchAsync(async(req,res)=>{
-    const campground = await Campground.findById(req.params.id);
+    const campground = await Campground.findById(req.params.id).populate('reviews');
+    console.log(campground);
     res.render('campgrounds/show',{campground});
  }))
 
@@ -110,6 +116,17 @@ app.get('/campgrounds/:id',catchAsync(async(req,res)=>{
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds');
  }))
+
+
+ app.post('/campgrounds/:id/reviews',validateReview,catchAsync(async(req,res)=>{
+   const campground = await Campground.findById(req.params.id);
+   const review = new Review(req.body.review);//因為在views的show EJS葉面  form submit 裡面的data 都叫做review[xxx]，所以要這樣拿
+   campground.reviews.push(review); //campground 是MODEL裡面的campground  review 是campground裡面ref 的review
+   await review.save();
+   await campground.save();
+   res.redirect(`/campgrounds/${campground._id}`);
+}))
+
 
 app.all('*',(req,res,next)=>{  //原本此fun就是用在如果打一個錯的路徑 會send 失敗的一個路徑
    next(new ExpressError('網頁不存在',404))//現在會傳入下個middleware
