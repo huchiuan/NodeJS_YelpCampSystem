@@ -5,7 +5,7 @@
             <img src="<%= campground.image%>" class="card-img-top" alt="...">
             <div class="card-body">
               <h5 class="card-title"><%= campground.title %></h5>
-              <p class="card-text"><%= campground.desciption%></p>
+              <p class="card-text"><%= campground.description%></p>
             </div>
             <ul class="list-group list-group-flush">
               <li class="list-group-item text-muted"><%= campground.location%></li>
@@ -51,7 +51,9 @@
         <div class="card-body">
           <h5 class="card-title">評分:<%= review.rating  %> </h5>
           <p class="card-text">回覆:<%= review.body  %></p>
-       
+          <form action="/campgrounds/<%=campground._id%>/reviews/<%=review._id%>?_method=DELETE" method="POST"> <!--要override JS POST-->
+            <button class="btn btn-sm btn-danger">刪除</button>
+          </form>
         </div>
       </div>
       <% }%>

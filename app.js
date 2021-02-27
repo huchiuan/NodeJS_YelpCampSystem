@@ -74,7 +74,7 @@ app.get('/campgrounds/new',(req,res)=>{
 
     res.render('campgrounds/new')
  })
-
+//下一行到底要不要NEXT?
 app.post('/campgrounds',validateCampground ,catchAsync(async(req,res,next)=>{ // new頁面的function   next是要讓這個rout可以跳到下面的middleeware
   // 用我寫的catchAsync model 包起來 可以再產生錯誤的時候跳到model 呼叫裡面要做的事情
 
@@ -127,6 +127,20 @@ app.get('/campgrounds/:id',catchAsync(async(req,res)=>{
    res.redirect(`/campgrounds/${campground._id}`);
 }))
 
+app.delete('/campgrounds/:id/reviews/:reviewId',catchAsync(async(req,res)=>{  //處理留言區的部分
+   // console.log(req);
+   // res.send('test');
+   const {id,reviewId} = req.params;
+   await Campground.findByIdAndUpdate(id,{$pull:{reviews:reviewId}});
+   //$pull可以把Campground 裡面的 那個東西刪了
+   await Review.findByIdAndDelete(reviewId);
+   //Review 跟Campground 有在campground裡面一個 跟自己一個共兩個 所以要刪兩次
+   res.redirect(`/campgrounds/${id}`);
+}))
+
+//参数在url中时
+// /path/:id,参数在req.params.id中
+// /path?id=xx,参数在req.query.id中
 
 app.all('*',(req,res,next)=>{  //原本此fun就是用在如果打一個錯的路徑 會send 失敗的一個路徑
    next(new ExpressError('網頁不存在',404))//現在會傳入下個middleware
