@@ -5,6 +5,7 @@ const ejsMate = require('ejs-mate');
 const session = require('express-session');
 // const {campgroundSchema,reviewSchema} = require('./schema.js'); //驗證表單用
 const catchAsync = require('./utils/catchAsync');
+const flash= require('connect-flash');
 const ExpressError=require('./utils/ExpressError');
 const methodOverride = require('method-override');
 
@@ -39,18 +40,26 @@ app.use(methodOverride('_method'));
 
 
 const sessionConfig={
-   secret: 'thisissecret',
-   resave:false,
-   saveUninitialized:true,
+   secret: 'thisissecret',///secret(必要選項)：用來簽章 sessionID 的cookie, 可以是一secret字串或是多個secret組成的一個陣列。
+   //如果是陣列, 只有第一個元素會被 簽到 sessionID cookie裡。而在驗證請求中的簽名時，才會考慮所有元素。
+   resave:false, //resave：強制將session存回 session store, 即使它沒有被修改。預設是 true
+   saveUninitialized:true, //saveUninitialized：強制將未初始化的session存回 session store，未初始化的意思是它是新的而且未被修改。
    cookie: {
       httpOnly:true,
-      expires:Date.now() +1000*60*60*24*7,
+      expires:Date.now() +1000*60*60*24*7,  
+      //expires (日期) cookie的到期日，超過此日期，即失效。
+      //httpOnly (布林) 標記此cookie只能從web server　訪問，以避免不正確的進入來取得竄改。
+      //maxAge (數字) 設定此cookie的生存時間(毫秒為單位)，比方60000(10分鐘後到期，必須重新訪問)
       maxAge:1000*60*60*24*7
    }
 }
-app.use(session(sessionConfig))
-
-
+app.use(session(sessionConfig));
+app.use(flash());  //有時候某些欄位會是透過後端傳送提示訊息過來，但是這些提示訊息通常只會顯示一次，所以這邊就會使用一個套件 connect-flash
+app.use((req,res,next)=>{
+   res.locals.success=req.flash('success');
+   res.locals.error =req.flash('error');
+   next();
+})
 //這兩行是用來使用routes裡面的
 app.use('/campgrounds',campgrounds)
 app.use('/campgrounds/:id/reviews',reviews)//reviews是router名字 這個東西是從routes的reviews expert出來的

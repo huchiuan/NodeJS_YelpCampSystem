@@ -36,9 +36,11 @@ router.get('/',catchAsync(async(req,res)=>{
     //但用這航太不方便 要驗證module內的所有的變數
     //所以使用joi套件做驗證
  
+    
      console.log(req.body.campground);//{ title: '333333', location: '33322' }
      const campground = await Campground(req.body.campground);
      await campground.save();//moogose的語法
+     req.flash('success','成功新增一個campground');
      res.redirect(`/campgrounds/${campground._id}`)//._id 是在DB裡產生的 為了要拿取所以要加_ 代表拿自己的
   
  }))
