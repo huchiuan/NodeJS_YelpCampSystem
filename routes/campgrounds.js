@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 const ExpressError=require('../utils/ExpressError');
 const Campground=require('../models/campground');
 const {campgroundSchema} = require('../schema.js'); //驗證表單用
-
+const{isLoggedIn} = require('../middleware');
 const validateCampground=(req,res,next)=>{
     const {error} = campgroundSchema.validate(req.body)//joi的FUN
     if(error){
@@ -23,12 +23,12 @@ router.get('/',catchAsync(async(req,res)=>{
  }))
  
  
- router.get('/new',(req,res)=>{
- 
+ router.get('/new',isLoggedIn,(req,res)=>{
+     
      res.render('campgrounds/new')
   })
  //下一行到底要不要NEXT?
- router.post('/',validateCampground ,catchAsync(async(req,res,next)=>{ // new頁面的function   next是要讓這個rout可以跳到下面的middleeware
+ router.post('/',isLoggedIn,validateCampground ,catchAsync(async(req,res,next)=>{ // new頁面的function   next是要讓這個rout可以跳到下面的middleeware
    // 用我寫的catchAsync model 包起來 可以再產生錯誤的時候跳到model 呼叫裡面要做的事情
  
     //if(!req.body.campground)throw new ExpressError('非法的資料',400);
@@ -53,12 +53,12 @@ router.get('/',catchAsync(async(req,res)=>{
   }))
  
  
-  router.get('/:id/edit',catchAsync(async(req,res)=>{
+  router.get('/:id/edit',isLoggedIn,catchAsync(async(req,res)=>{
      const campground = await Campground.findById(req.params.id);
      res.render('campgrounds/edit',{campground});
   }))
  
-  router.put('/:id',validateCampground,catchAsync(async(req,res)=>{
+  router.put('/:id',isLoggedIn,validateCampground,catchAsync(async(req,res)=>{
      const campground = await Campground.findByIdAndUpdate(req.params.id,{...req.body.campground});
      //const aString = "foo"
      //const chars = [ ...aString ] // [ "f", "o", "o" ]
@@ -67,7 +67,7 @@ router.get('/',catchAsync(async(req,res)=>{
      res.redirect(`/campgrounds/${campground._id}`)
   }))
  
-  router.delete('/:id',catchAsync(async(req,res)=>{
+  router.delete('/:id',isLoggedIn,catchAsync(async(req,res)=>{
      const {id} =req.params;
      await Campground.findByIdAndDelete(id);
      req.flash('success','成功刪除一個campground');
