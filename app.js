@@ -8,6 +8,9 @@ const catchAsync = require('./utils/catchAsync');
 const flash= require('connect-flash');
 const ExpressError=require('./utils/ExpressError');
 const methodOverride = require('method-override');
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+const User = require('./models/user');
 
 
 const campgrounds = require('./routes/campgrounds');
@@ -55,11 +58,30 @@ const sessionConfig={
 }
 app.use(session(sessionConfig));
 app.use(flash());  //有時候某些欄位會是透過後端傳送提示訊息過來，但是這些提示訊息通常只會顯示一次，所以這邊就會使用一個套件 connect-flash
+
+app.use(passport.initialize());
+app.use(passport.session());//app.use(session(sessionConfig));要比此行早用 文件說的
+passport.use(new LocalStrategy(User.authenticate())); //LocalStrategy 這個官方API 會專注我們用User 這個LOACL的帳密
+passport.serializeUser(User.serializeUser());//幫我們對USER 序列化 序列化是指我們如何拿DATA 或是存USER 在session
+passport.deserializeUser(User.deserializeUser());
+
+
+
+
 app.use((req,res,next)=>{
    res.locals.success=req.flash('success');
    res.locals.error =req.flash('error');  //丟到partials的flash處理
    next();
 })
+
+
+app.get('/fakeUser',async(req,res)=>{
+   const user = new User({email:'wewew@gmail',username:'me'});
+   const newUser = await User.register (user,'chicken');
+   res.send(newUser);
+})
+
+
 //這兩行是用來使用routes裡面的
 app.use('/campgrounds',campgrounds)
 app.use('/campgrounds/:id/reviews',reviews)//reviews是router名字 這個東西是從routes的reviews expert出來的
