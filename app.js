@@ -2,7 +2,7 @@ const express = require('express');
 const path = require ('path');
 const mongoose=require('mongoose');
 const ejsMate = require('ejs-mate');
-
+const session = require('express-session');
 // const {campgroundSchema,reviewSchema} = require('./schema.js'); //驗證表單用
 const catchAsync = require('./utils/catchAsync');
 const ExpressError=require('./utils/ExpressError');
@@ -16,7 +16,8 @@ const reviews = require('./routes/reviews');
 mongoose.connect('mongodb://localhost:27017/yelp-camp',{
     useNewUrlParser:true,
     useCreateIndex:true,
-    useUnifiedTopology:true
+    useUnifiedTopology:true,
+    useFindAndModify:false
 })
 
 const db = mongoose.connection;
@@ -37,6 +38,17 @@ app.use(express.urlencoded({extended:true})); //可以解析req內的東西
 app.use(methodOverride('_method'));
 
 
+const sessionConfig={
+   secret: 'thisissecret',
+   resave:false,
+   saveUninitialized:true,
+   cookie: {
+      httpOnly:true,
+      expires:Date.now() +1000*60*60*24*7,
+      maxAge:1000*60*60*24*7
+   }
+}
+app.use(session(sessionConfig))
 
 
 //這兩行是用來使用routes裡面的
