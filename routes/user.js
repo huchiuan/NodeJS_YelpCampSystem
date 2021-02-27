@@ -1,5 +1,6 @@
 const express =require('express');
 const router = express.Router();
+const passport=require('passport');
 const catchAsync = require('../utils/catchAsync');
 const User = require('../models/user');
 
@@ -24,6 +25,13 @@ router.post('/register',catchAsync(async(req,res)=>{
     
    
 }))
+router.get('/login',(req,res)=>{
+   res.render('users/login');
+})
+router.post('/login',passport.authenticate('local',{failureFlash:true,failureRedirect:'/login'}),(req,res)=>{ //passport.authenticate是passport提供的middleware 可以身分驗證
+   req.flash('success','歡迎回來');
+   res.redirect('/campgrounds');
+})
 
 
 module.exports =router;
