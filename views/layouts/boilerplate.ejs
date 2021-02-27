@@ -13,7 +13,8 @@
 <body class="d-flex flex-column vh-100">  <!--d-flex flex-column vh-100 是boostrap內的功能-->
         <%-include('../partials/navbar') %>
     <main class="container mt-5">
-        <%= success%>
+       
+      <%-include('../partials/flash') %>
         <%-body %>
     </main>
     <%-include('../partials/footer') %>

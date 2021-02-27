@@ -28,6 +28,7 @@ router.post('/',validateReview,catchAsync(async(req,res)=>{
     campground.reviews.push(review); //campground 是MODEL裡面的campground  review 是campground裡面ref 的review
     await review.save();
     await campground.save();
+    req.flash('success','成功新增一個評論');
     res.redirect(`/campgrounds/${campground._id}`);
  }))
  
@@ -39,6 +40,7 @@ router.post('/',validateReview,catchAsync(async(req,res)=>{
     //$pull可以把Campground 裡面的 那個東西刪了
     await Review.findByIdAndDelete(reviewId);
     //Review 跟Campground 有在campground裡面一個 跟自己一個共兩個 所以要刪兩次
+    req.flash('success','成功刪除一個評論');
     res.redirect(`/campgrounds/${id}`);
  }))
 //参数在url中时

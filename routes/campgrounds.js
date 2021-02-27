@@ -63,12 +63,14 @@ router.get('/',catchAsync(async(req,res)=>{
      //const aString = "foo"
      //const chars = [ ...aString ] // [ "f", "o", "o" ]
      console.log(req.body.campground);
+     req.flash('success','成功更新物件');
      res.redirect(`/campgrounds/${campground._id}`)
   }))
  
   router.delete('/:id',catchAsync(async(req,res)=>{
      const {id} =req.params;
      await Campground.findByIdAndDelete(id);
+     req.flash('success','成功刪除一個campground');
      res.redirect('/campgrounds');
   }))
 
