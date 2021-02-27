@@ -57,7 +57,7 @@ app.use(session(sessionConfig));
 app.use(flash());  //有時候某些欄位會是透過後端傳送提示訊息過來，但是這些提示訊息通常只會顯示一次，所以這邊就會使用一個套件 connect-flash
 app.use((req,res,next)=>{
    res.locals.success=req.flash('success');
-   res.locals.error =req.flash('error');
+   res.locals.error =req.flash('error');  //丟到partials的flash處理
    next();
 })
 //這兩行是用來使用routes裡面的
