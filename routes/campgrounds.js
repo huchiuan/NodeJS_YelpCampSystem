@@ -56,12 +56,31 @@ router.get('/',catchAsync(async(req,res)=>{
  
  
   router.get('/:id/edit',isLoggedIn,catchAsync(async(req,res)=>{
-     const campground = await Campground.findById(req.params.id);
+      const {id} =req.params;
+     const campground = await Campground.findById(id);
+
+    
+     if(!campground){
+        req.flash('error','無法找到此campground');
+        return res.redict('/campgrounds')
+     }
+     if(!campground.author.equals(req.user._id)){
+      req.flash('error',"你沒有相關權限進入該頁面");
+      return res.redirect(`/campgrounds/${id}`);
+   }
+
      res.render('campgrounds/edit',{campground});
   }))
  
   router.put('/:id',isLoggedIn,validateCampground,catchAsync(async(req,res)=>{
-     const campground = await Campground.findByIdAndUpdate(req.params.id,{...req.body.campground});
+     const {id} =req.params;
+     const campground = await Campground.findById(id);
+
+     if(!campground.author.equals(req.user._id)){
+        req.flash('error',"你沒有相關權限進入該頁面");
+        return res.redirect(`/campgrounds/${id}`);
+     }
+     const camp = await Campground.findByIdAndUpdate(req.params.id,{...req.body.campground});
      //const aString = "foo"
      //const chars = [ ...aString ] // [ "f", "o", "o" ]
      console.log(req.body.campground);
@@ -70,6 +89,7 @@ router.get('/',catchAsync(async(req,res)=>{
   }))
  
   router.delete('/:id',isLoggedIn,catchAsync(async(req,res)=>{
+     
      const {id} =req.params;
      await Campground.findByIdAndDelete(id);
      req.flash('success','成功刪除一個campground');
