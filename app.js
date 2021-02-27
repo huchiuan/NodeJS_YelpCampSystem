@@ -1,16 +1,17 @@
 const express = require('express');
-
 const path = require ('path');
 const mongoose=require('mongoose');
 const ejsMate = require('ejs-mate');
 
-const {campgroundSchema,reviewSchema} = require('./schema.js'); //驗證表單用
+// const {campgroundSchema,reviewSchema} = require('./schema.js'); //驗證表單用
 const catchAsync = require('./utils/catchAsync');
 const ExpressError=require('./utils/ExpressError');
 const methodOverride = require('method-override');
-const Campground=require('./models/campground');
-const Review=require('./models/review');
-const { required } = require('joi');
+
+
+const campgrounds = require('./routes/campgrounds');
+const reviews = require('./routes/reviews');
+
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp',{
     useNewUrlParser:true,
@@ -37,116 +38,25 @@ app.use(methodOverride('_method'));
 
 
 
-const validateCampground=(req,res,next)=>{
-   const {error} = campgroundSchema.validate(req.body)//joi的FUN
-   if(error){
-      const msg=error.details.map(el=> el.message).join(',')//el = each element 每個元素會回傳el.message 再加上,號
-      throw new ExpressError(msg,400);
-   }else{
-      next();
-   }
-}
 
 
-const validateReview=(req,res,next)=>{
-   const {error} = reviewSchema.validate(req.body)//joi的FUN
-   if(error){
-      const msg=error.details.map(el=> el.message).join(',')//el = each element 每個元素會回傳el.message 再加上,號
-      throw new ExpressError(msg,400);
-   }else{
-      next();
-   }
-}
+app.use('/campgrounds',campgrounds)
+app.use('/campgrounds/:id/reviews',reviews)//reviews是router名字 這個東西是從routes的reviews expert出來的
+//  前面的/campgrounds/:id/reviews' 打上去 可以讓module裡面的rout路徑簡短
 
 
 app.get('/',(req,res)=>{
     res.send('home')
 })
 
-app.get('/campgrounds',catchAsync(async(req,res)=>{
-   const campgrounds = await Campground.find({});  //Model.find() 是mongoose裡面的fun 可以去mongodb拿資料 (此頁的yelp-camp，)
-   //而yelp-camp有東西是因為在SEEDS裡面建立完成。
-   res.render('campgrounds/index',{campgrounds})
-}))
-
-
-app.get('/campgrounds/new',(req,res)=>{
-
-    res.render('campgrounds/new')
- })
-//下一行到底要不要NEXT?
-app.post('/campgrounds',validateCampground ,catchAsync(async(req,res,next)=>{ // new頁面的function   next是要讓這個rout可以跳到下面的middleeware
-  // 用我寫的catchAsync model 包起來 可以再產生錯誤的時候跳到model 呼叫裡面要做的事情
-
-   //if(!req.body.campground)throw new ExpressError('非法的資料',400);
-   //當此行發生 會觸發catchAsync 丟到 這行app.use((err,req,res,next)=>{
-   //但用這航太不方便 要驗證module內的所有的變數
-   //所以使用joi套件做驗證
-
-    console.log(req.body.campground);//{ title: '333333', location: '33322' }
-    const campground = await Campground(req.body.campground);
-    await campground.save();//moogose的語法
-    res.redirect(`/campgrounds/${campground._id}`)//._id 是在DB裡產生的 為了要拿取所以要加_ 代表拿自己的
- 
-}))
-
-
-app.get('/campgrounds/:id',catchAsync(async(req,res)=>{
-    const campground = await Campground.findById(req.params.id).populate('reviews');
-    console.log(campground);
-    res.render('campgrounds/show',{campground});
- }))
-
-
- app.get('/campgrounds/:id/edit',catchAsync(async(req,res)=>{
-    const campground = await Campground.findById(req.params.id);
-    res.render('campgrounds/edit',{campground});
- }))
-
- app.put('/campgrounds/:id',validateCampground,catchAsync(async(req,res)=>{
-    const campground = await Campground.findByIdAndUpdate(req.params.id,{...req.body.campground});
-    //const aString = "foo"
-    //const chars = [ ...aString ] // [ "f", "o", "o" ]
-    console.log(req.body.campground);
-    res.redirect(`/campgrounds/${campground._id}`)
- }))
-
- app.delete('/campgrounds/:id',catchAsync(async(req,res)=>{
-    const {id} =req.params;
-    await Campground.findByIdAndDelete(id);
-    res.redirect('/campgrounds');
- }))
-
-
- app.post('/campgrounds/:id/reviews',validateReview,catchAsync(async(req,res)=>{
-   const campground = await Campground.findById(req.params.id);
-   const review = new Review(req.body.review);//因為在views的show EJS葉面  form submit 裡面的data 都叫做review[xxx]，所以要這樣拿
-   campground.reviews.push(review); //campground 是MODEL裡面的campground  review 是campground裡面ref 的review
-   await review.save();
-   await campground.save();
-   res.redirect(`/campgrounds/${campground._id}`);
-}))
-
-app.delete('/campgrounds/:id/reviews/:reviewId',catchAsync(async(req,res)=>{  //處理留言區的部分
-   // console.log(req);
-   // res.send('test');
-   const {id,reviewId} = req.params;
-   await Campground.findByIdAndUpdate(id,{$pull:{reviews:reviewId}});
-   //$pull可以把Campground 裡面的 那個東西刪了
-   await Review.findByIdAndDelete(reviewId);
-   //Review 跟Campground 有在campground裡面一個 跟自己一個共兩個 所以要刪兩次
-   res.redirect(`/campgrounds/${id}`);
-}))
-
-//参数在url中时
-// /path/:id,参数在req.params.id中
-// /path?id=xx,参数在req.query.id中
 
 app.all('*',(req,res,next)=>{  //原本此fun就是用在如果打一個錯的路徑 會send 失敗的一個路徑
    next(new ExpressError('網頁不存在',404))//現在會傳入下個middleware
 })
 app.use((err,req,res,next)=>{
-   const{statusCode} =err ;  // 如果我把這行拿掉 會噴error statusCode沒定義
+   
+   const{statusCode=500} =err ;  // 如果我把這行拿掉 會噴error statusCode沒定義 有時候的statuscode不會出現 所以要給他預設值500
+
    // console.log(statusCode);//顯示400
    //因為下面要用到statusCode 跟message 這兩個變數
    //所以要先宣告預設值
