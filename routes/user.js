@@ -35,7 +35,8 @@ router.get('/login',(req,res)=>{
 })
 router.post('/login',passport.authenticate('local',{failureFlash:true,failureRedirect:'/login'}),(req,res)=>{ //passport.authenticate是passport提供的middleware 可以身分驗證
    req.flash('success','歡迎回來');
-   res.redirect('/campgrounds');
+   const redirectUrl = req.session.returnTo ||'/campgrounds';
+   res.redirect(redirectUrl);
 })
 
 router.get('/logout',(req,res)=>{
