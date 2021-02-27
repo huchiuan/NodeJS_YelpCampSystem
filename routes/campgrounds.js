@@ -38,7 +38,8 @@ router.get('/',catchAsync(async(req,res)=>{
  
     
      console.log(req.body.campground);//{ title: '333333', location: '33322' }
-     const campground = await Campground(req.body.campground);
+     const campground = new Campground(req.body.campground);
+     campground.author=req.user._id;//將建立者的ID存到author
      await campground.save();//moogose的語法
      req.flash('success','成功新增一個campground');
      res.redirect(`/campgrounds/${campground._id}`)//._id 是在DB裡產生的 為了要拿取所以要加_ 代表拿自己的
@@ -47,7 +48,8 @@ router.get('/',catchAsync(async(req,res)=>{
  
  
  router.get('/:id',catchAsync(async(req,res)=>{
-     const campground = await Campground.findById(req.params.id).populate('reviews');
+     const campground = await Campground.findById(req.params.id).populate('reviews').populate('author'); 
+     //pupulate 可以透過req.params.id把資料繫結再一起
      console.log(campground);
      res.render('campgrounds/show',{campground});
   }))
