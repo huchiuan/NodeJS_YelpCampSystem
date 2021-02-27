@@ -39,11 +39,13 @@ app.use(methodOverride('_method'));
 
 
 
-
+//這兩行是用來使用routes裡面的
 app.use('/campgrounds',campgrounds)
 app.use('/campgrounds/:id/reviews',reviews)//reviews是router名字 這個東西是從routes的reviews expert出來的
 //  前面的/campgrounds/:id/reviews' 打上去 可以讓module裡面的rout路徑簡短
 
+app.use(express.static(path.join(__dirname,'public')))
+//加入此行可以讓整隻程式運用public資料夾裡面的資料
 
 app.get('/',(req,res)=>{
     res.send('home')
