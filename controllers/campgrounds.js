@@ -1,4 +1,7 @@
 const Campground = require('../models/campground');
+const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+const mapBoxToken=process.env.MAPBOX_TOKEN;
+const geocoder = mbxGeocoding({accessToken:mapBoxToken});
 const {cloudinary} = require("../cloudinary");
 
 module.exports.index = async (req, res) => {
@@ -25,16 +28,23 @@ module.exports.createCampground = async (req, res, next) => { // new頁面的fun
 
    // console.log(req.body.campground);
    //{ title: '333333', location: '33322' }
-   const campground = new Campground(req.body.campground);
-   campground.images = req.files.map(f => ({
-      url: f.path,
-      filename: f.filename
-   }));
-   campground.author = req.user._id; //將建立者的ID存到author
-   await campground.save(); //moogose的語法
-   console.log(campground);
-   req.flash('success', '成功新增一個campground');
-   res.redirect(`/campgrounds/${campground._id}`) //._id 是在DB裡產生的 為了要拿取所以要加_ 代表拿自己的
+
+   const geoData= await geocoder.forwardGeocode({
+      query: req.body.campground.location,
+      limit:1
+   }).send()
+   res.send(geoData.body.features[0].geometry.coordinates);
+   //res.send('s');
+   // const campground = new Campground(req.body.campground);
+   // campground.images = req.files.map(f => ({
+   //    url: f.path,
+   //    filename: f.filename
+   // }));
+   // campground.author = req.user._id; //將建立者的ID存到author
+   // await campground.save(); //moogose的語法
+   // console.log(campground);
+   // req.flash('success', '成功新增一個campground');
+   // res.redirect(`/campgrounds/${campground._id}`) //._id 是在DB裡產生的 為了要拿取所以要加_ 代表拿自己的
 
 }
 
