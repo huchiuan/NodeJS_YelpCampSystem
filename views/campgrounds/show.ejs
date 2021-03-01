@@ -30,6 +30,7 @@
     </div>
     <!--這個div 的 col-6 可以切開螢幕呈現的比例 -->
     <div class="col-6">
+      <% if(currentUser) {%>
       <h2>留言區</h2>
       <form action="/campgrounds/<%=campground._id%>/reviews" method="POST" class="mb-3 validated-form" novalidate>
         <!--novalidate告訴表單不要使用HTML驗證
@@ -49,14 +50,18 @@
         </div> 
         <button class="btn btn-success">Submit</button>
       </form>
+      <% }%>
       <% for(let review of campground.reviews){ %>
       <div class="card mb-3">
         <div class="card-body">
           <h5 class="card-title">評分:<%= review.rating  %> </h5>
+          <h6 class="card-subtitle mb-2 text-muted">發布者:<%= review.author.username%></h6>
           <p class="card-text">回覆:<%= review.body  %></p>
+          <% if (currentUser &&review.author.equals(currentUser._id)) {%>
           <form action="/campgrounds/<%=campground._id%>/reviews/<%=review._id%>?_method=DELETE" method="POST"> <!--要override JS POST-->
             <button class="btn btn-sm btn-danger">刪除</button>
           </form>
+          <%}%>
         </div>
       </div>
       <% }%>

@@ -3,18 +3,9 @@ const router = express.Router();
 const catchAsync = require('../utils/catchAsync');
 const ExpressError=require('../utils/ExpressError');
 const Campground=require('../models/campground');
-const {campgroundSchema} = require('../schema.js'); //驗證表單用
-const{isLoggedIn} = require('../middleware');
-const validateCampground=(req,res,next)=>{
-    const {error} = campgroundSchema.validate(req.body)//joi的FUN
-    if(error){
-       const msg=error.details.map(el=> el.message).join(',')//el = each element 每個元素會回傳el.message 再加上,號
-       throw new ExpressError(msg,400);
-    }else{
-       next();
-    }
- }
- 
+
+const{isLoggedIn,isAuthor,validateCampground} = require('../middleware');
+
 
 router.get('/',catchAsync(async(req,res)=>{
     const campgrounds = await Campground.find({});  //Model.find() 是mongoose裡面的fun 可以去mongodb拿資料 (此頁的yelp-camp，)
@@ -48,14 +39,19 @@ router.get('/',catchAsync(async(req,res)=>{
  
  
  router.get('/:id',catchAsync(async(req,res)=>{
-     const campground = await Campground.findById(req.params.id).populate('reviews').populate('author'); 
+     const campground = await Campground.findById(req.params.id).populate(
+        {path:'reviews',
+        populate:{
+           path:'author'
+        }
+   }).populate('author'); 
      //pupulate 可以透過req.params.id把資料繫結再一起
      console.log(campground);
      res.render('campgrounds/show',{campground});
   }))
  
  
-  router.get('/:id/edit',isLoggedIn,catchAsync(async(req,res)=>{
+  router.get('/:id/edit',isLoggedIn,isAuthor,catchAsync(async(req,res)=>{
       const {id} =req.params;
      const campground = await Campground.findById(id);
 
@@ -64,22 +60,16 @@ router.get('/',catchAsync(async(req,res)=>{
         req.flash('error','無法找到此campground');
         return res.redict('/campgrounds')
      }
-     if(!campground.author.equals(req.user._id)){
-      req.flash('error',"你沒有相關權限進入該頁面");
-      return res.redirect(`/campgrounds/${id}`);
-   }
+   
 
      res.render('campgrounds/edit',{campground});
   }))
  
-  router.put('/:id',isLoggedIn,validateCampground,catchAsync(async(req,res)=>{
+  router.put('/:id',isLoggedIn,isAuthor,validateCampground,catchAsync(async(req,res)=>{
      const {id} =req.params;
      const campground = await Campground.findById(id);
 
-     if(!campground.author.equals(req.user._id)){
-        req.flash('error',"你沒有相關權限進入該頁面");
-        return res.redirect(`/campgrounds/${id}`);
-     }
+     
      const camp = await Campground.findByIdAndUpdate(req.params.id,{...req.body.campground});
      //const aString = "foo"
      //const chars = [ ...aString ] // [ "f", "o", "o" ]
@@ -88,7 +78,7 @@ router.get('/',catchAsync(async(req,res)=>{
      res.redirect(`/campgrounds/${campground._id}`)
   }))
  
-  router.delete('/:id',isLoggedIn,catchAsync(async(req,res)=>{
+  router.delete('/:id',isLoggedIn,isAuthor,catchAsync(async(req,res)=>{
      
      const {id} =req.params;
      await Campground.findByIdAndDelete(id);
