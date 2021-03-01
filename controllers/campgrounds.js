@@ -1,5 +1,5 @@
 const Campground = require('../models/campground');
-
+const {cloudinary} = require("../cloudinary");
 
 module.exports.index = async (req, res) => {
    const campgrounds = await Campground.find({}); //Model.find() 是mongoose裡面的fun 可以去mongodb拿資料 (此頁的yelp-camp，)
@@ -86,7 +86,14 @@ module.exports.updateCampground = async (req, res) => {
    await campground.save();
    //const aString = "foo"
    //const chars = [ ...aString ] // [ "f", "o", "o" ]
-   console.log(req.body.campground);
+   if(req.body.deleteImages){
+      for(let filename of req.body.deleteImages){
+         await cloudinary.uploader.destroy(filename);
+      }
+      await campground.updateOne({$pull:{images:{filename:{$in:req.body.deleteImages}}}})
+      console.log(campground);
+   }
+   // console.log(req.body.campground);
    req.flash('success', '成功更新物件');
    res.redirect(`/campgrounds/${campground._id}`)
 }
