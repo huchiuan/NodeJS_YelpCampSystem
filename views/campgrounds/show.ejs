@@ -1,52 +1,76 @@
 <% layout('layouts/boilerplate')%>
 <link rel="stylesheet" href="/stylesheets/star.css">
 <div class="row">
-    <div class="col-6 ">
-        <div class="card mb-3 ">
-          <% for(let img of campground.images){  %>
-            <img src="<%= img.url%>" class="card-img-top" alt="..."> 
-            <%    }  %> 
-         
-            <div class="card-body">
-              <h5 class="card-title"><%= campground.title %></h5>
-              <p class="card-text"><%= campground.description%></p>
-            </div>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item text-muted"><%= campground.location%></li>
-              <li class="list-group-item ">創建此資料者:  <%= campground.author.username%></li>
-              <li class="list-group-item">$<%= campground.price%>/night</li>
-              
-            </ul>
-            <% if (currentUser &&campground.author.equals(currentUser._id)) {%>
-            <div class="card-body">
-                <a class="card-link btn btn-info" href="/campgrounds/<%=campground._id%>/edit">edit</a>
-                <form class="d-inline"action="/campgrounds/<%=campground._id%>?_method=DELETE" method="post">
-                    <button class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-            <% } %>
-            <div class="card-footer text-muted">
-                兩天前
-            </div>
-          </div>
+  <div class="col-6 ">
+    <div id="campgroundCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <% campground.images.forEach((img,i)=>{    %>
 
-      
+
+        <div class="carousel-item <%=i ===0 ? 'active' : '' %>">
+          <img src="<%= img.url%>" class="d-block w-100" alt="">
+        </div>
+        <%     })  %>
+
+      </div>
+      <% if (campground.images.length >1) {%>
+      <button class="carousel-control-prev" type="button" data-bs-target="#campgroundCarousel"
+        data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#campgroundCarousel"
+        data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+      <% } %> 
     </div>
-    <!--這個div 的 col-6 可以切開螢幕呈現的比例 -->
-    <div class="col-6">
-      <% if(currentUser) {%>
-      <h2>留言區</h2>
-      <form action="/campgrounds/<%=campground._id%>/reviews" method="POST" class="mb-3 validated-form" novalidate>
-        <!--novalidate告訴表單不要使用HTML驗證
+
+    <div class="card mb-3 ">
+
+
+      <div class="card-body">
+        <h5 class="card-title"><%= campground.title %></h5>
+        <p class="card-text"><%= campground.description%></p>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item text-muted"><%= campground.location%></li>
+        <li class="list-group-item ">創建此資料者: <%= campground.author.username%></li>
+        <li class="list-group-item">$<%= campground.price%>/night</li>
+
+      </ul>
+      <% if (currentUser &&campground.author.equals(currentUser._id)) {%>
+      <div class="card-body">
+        <a class="card-link btn btn-info" href="/campgrounds/<%=campground._id%>/edit">edit</a>
+        <form class="d-inline" action="/campgrounds/<%=campground._id%>?_method=DELETE" method="post">
+          <button class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+      <% } %>
+      <div class="card-footer text-muted">
+        兩天前
+      </div>
+    </div>
+
+
+  </div>
+  <!--這個div 的 col-6 可以切開螢幕呈現的比例 -->
+  <div class="col-6">
+    <% if(currentUser) {%>
+    <h2>留言區</h2>
+    <form action="/campgrounds/<%=campground._id%>/reviews" method="POST" class="mb-3 validated-form" novalidate>
+      <!--novalidate告訴表單不要使用HTML驗證
       然後使用validated-form(在boilerplate那隻)-->
-        <!-- <div class="mb-3">
+      <!-- <div class="mb-3">
           <label class="form-label" for="rating">評分</label>
           <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
         </div> -->
-        <div class="mb-3">
+      <div class="mb-3">
         <fieldset class="starability-basic">
           <legend>評分:</legend>
-          <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked aria-label="No rating." />
+          <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked
+            aria-label="No rating." />
           <input type="radio" id="first-rate1" name="review[rating]" value="1" />
           <label for="first-rate1" title="Terrible">1 star</label>
           <input type="radio" id="first-rate2" name="review[rating]" value="2" />
@@ -59,37 +83,36 @@
           <label for="first-rate5" title="Amazing">5 stars</label>
         </fieldset>
       </div>
-        <div class="mb-3">
-          <label class="form-label" for="body">評論:</label>
-          <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
-       <!--它用於創建0的底部邊距（margin-bottom:0）-->
+      <div class="mb-3">
+        <label class="form-label" for="body">評論:</label>
+        <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3" required></textarea>
+        <!--它用於創建0的底部邊距（margin-bottom:0）-->
 
-          <div class="valid-feedback">
-            內容正確!
+        <div class="valid-feedback">
+          內容正確!
         </div>
-        </div> 
-        <button class="btn btn-success">Submit</button>
-      </form>
-      <% }%>
-      <% for(let review of campground.reviews){ %>
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title"><%= review.author.username%></h5>
-          <p class="starability-result" data-rating="<%= review.rating%>">
-            Rated: <%= review.rating%> stars
-          </p>
-          <!-- <h6 class="card-subtitle mb-2 text-muted">發布者:<%= review.author.username%></h6> -->
-          <p class="card-text">回覆:<%= review.body  %></p>
-          <% if (currentUser &&review.author.equals(currentUser._id)) {%>
-          <form action="/campgrounds/<%=campground._id%>/reviews/<%=review._id%>?_method=DELETE" method="POST"> <!--要override JS POST-->
-            <button class="btn btn-sm btn-danger">刪除</button>
-          </form>
-          <%}%>
+      </div>
+      <button class="btn btn-success">Submit</button>
+    </form>
+    <% }%>
+    <% for(let review of campground.reviews){ %>
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title"><%= review.author.username%></h5>
+        <p class="starability-result" data-rating="<%= review.rating%>">
+          Rated: <%= review.rating%> stars
+        </p>
+        <!-- <h6 class="card-subtitle mb-2 text-muted">發布者:<%= review.author.username%></h6> -->
+        <p class="card-text">回覆:<%= review.body  %></p>
+        <% if (currentUser &&review.author.equals(currentUser._id)) {%>
+        <form action="/campgrounds/<%=campground._id%>/reviews/<%=review._id%>?_method=DELETE" method="POST">
+          <!--要override JS POST-->
+          <button class="btn btn-sm btn-danger">刪除</button>
+        </form>
+        <%}%>
         </div>
       </div>
       <% }%>
 
+      </div>
     </div>
-</div>
-
-  
