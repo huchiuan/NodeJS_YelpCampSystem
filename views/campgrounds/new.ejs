@@ -3,7 +3,7 @@
 <div class="row">
     <h1 class="text-center">New Campground</h1>
     <div class="col-6 offset-4">
-        <form action="/campgrounds" method = "POST" novalidate class="validated-form">  <!--  novalidate 關閉表單的驗證功能 用boostrap 的required-->
+        <form action="/campgrounds" method = "POST" novalidate class="validated-form" enctype="multipart/form-data">  <!--  novalidate 關閉表單的驗證功能 用boostrap 的required-->
             <div class="mb-3">
                 <label class="form-label"for="title">Title</label>
                 <input class="form-control" type="text" id="title" name ="campground[title]" required>
@@ -18,13 +18,14 @@
                     內容正確!
                 </div>
             </div>
-            <div class="mb-3">
+            <input type="file" name="image" id="" multiple>
+            <!-- <div class="mb-3">
                 <label class="form-label"for="image">Image URL</label>
                 <input class="form-control"type="text" id="image" name ="campground[image]" required>
                 <div class="valid-feedback">
                     內容正確!
                 </div>
-            </div>
+            </div> -->
             <div class="mb-3">
                 <label class="form-label"for="price">Camoground Price</label>
                 <div class="input-group"><!--沒用這個包起來的化，在葉面上 下面那兩行會分開。-->
