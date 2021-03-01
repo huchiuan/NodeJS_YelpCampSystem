@@ -10,17 +10,14 @@ const{isLoggedIn,isAuthor,validateCampground} = require('../middleware');
 
 const multer  = require('multer');
 const{storage} = require('../cloudinary');
-const upload = multer({ storage});
+const upload = multer({ storage});//用這些就再REQ的時候能拿到上傳到multer的URL
 
 
 
 router.route('/')
         .get(catchAsync(campgrounds.index))
-        //.post(isLoggedIn,validateCampground ,catchAsync(campgrounds.createCampground))
-        .post(upload.array('image'),(req,res)=>{
-            console.log(req.body,req.files);
-            res.send('!')
-        })
+        .post(isLoggedIn,upload.array('image'),validateCampground ,catchAsync(campgrounds.createCampground))
+    
 
 
 router.get('/new',isLoggedIn,campgrounds.renderNewForm);

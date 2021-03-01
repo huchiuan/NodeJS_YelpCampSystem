@@ -21,10 +21,13 @@ module.exports.renderNewForm=(req,res)=>{
      //所以使用joi套件做驗證
   
      
-      console.log(req.body.campground);//{ title: '333333', location: '33322' }
+      // console.log(req.body.campground);
+      //{ title: '333333', location: '33322' }
       const campground = new Campground(req.body.campground);
+      campground.images= req.files.map(f=>({url:f.path,filename:f.filename}));
       campground.author=req.user._id;//將建立者的ID存到author
       await campground.save();//moogose的語法
+      console.log(campground);
       req.flash('success','成功新增一個campground');
       res.redirect(`/campgrounds/${campground._id}`)//._id 是在DB裡產生的 為了要拿取所以要加_ 代表拿自己的
    
@@ -38,7 +41,7 @@ module.exports.renderNewForm=(req,res)=>{
        }
   }).populate('author'); 
     //pupulate 可以透過req.params.id把資料繫結再一起 可以用console ground看漲怎樣 細節完的資料再丟到ejs處理事情 
-    console.log(campground);
+   
     res.render('campgrounds/show',{campground});
  }
 
