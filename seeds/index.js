@@ -21,33 +21,34 @@ console.log(descriptors[0]);
 
 const seedDB = async () => {
     await Campground.deleteMany({});
-    for(let i=0;i<300;i++){
+    // for(let i=0;i<300;i++){
         
-        const random1000 = Math.floor(Math.random()*1000);
-        const price = Math.floor(Math.random()*20)+10;
-        const camp =new Campground({
-            author:'603a6b6f3d6f492e24c15568',
-            location:`${cities[random1000].city},${cities[random1000].state}`,
-            title:`${sample(descriptors)} ${sample(places)}`,
-            description:'暫時評論',
-            geometry : { "type" : "Point", "coordinates" : [ cities[random1000].longitude, cities[random1000].latitude] },
-            price,
-            images:[
-                {
+    //     const random1000 = Math.floor(Math.random()*1000);
+    //     const price = Math.floor(Math.random()*20)+10;
+    //     const camp =new Campground({
+    //         author:'603a6b6f3d6f492e24c15568',
+    //         location:`${cities[random1000].city},${cities[random1000].state}`,
+    //         title:`${sample(descriptors)} ${sample(places)}`,
+    //         description:'暫時評論',
+    //         geometry : { "type" : "Point", "coordinates" : [ cities[random1000].longitude, cities[random1000].latitude] },
+    //         price,
+    //         images:[
+    //             {
                   
-                  url: 'https://res.cloudinary.com/nccu/image/upload/v1614608841/YelpCamp/y8e43iasmu1aq6qrvsb0.jpg',
-                  filename: 'YelpCamp/y8e43iasmu1aq6qrvsb0'
-                },
-                {
+    //               url: 'https://res.cloudinary.com/nccu/image/upload/v1614608841/YelpCamp/y8e43iasmu1aq6qrvsb0.jpg',
+    //               filename: 'YelpCamp/y8e43iasmu1aq6qrvsb0'
+    //             },
+    //             {
                
-                  url: 'https://res.cloudinary.com/nccu/image/upload/v1614608841/YelpCamp/iaelztovekuvqilwwyxo.jpg',
-                  filename: 'YelpCamp/iaelztovekuvqilwwyxo'
-                }
-              ]
+    //               url: 'https://res.cloudinary.com/nccu/image/upload/v1614608841/YelpCamp/iaelztovekuvqilwwyxo.jpg',
+    //               filename: 'YelpCamp/iaelztovekuvqilwwyxo'
+    //             }
+    //           ]
 
-        })
-        await camp.save();
-    }
+    //     })
+    //     await camp.save();
+    // }
+    
 }
 
 seedDB().then(() =>{

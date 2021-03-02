@@ -1,10 +1,10 @@
     <% layout('layouts/boilerplate')%>
     <div id="cluster-map"></div>
 
-    <h1>所有的campgrounds</h1>
-    <div>
+    <h1>所有的營地</h1>
+    <!-- <div>
         <a href="/campgrounds/new">新增campgrounds</a>
-    </div>
+    </div> -->
  
             <% for (let campground of campgrounds){ %>
                 <div class="card mb-3">
@@ -26,7 +26,7 @@
                                 <p class="card-text">
                                     <small class="text-muted"><%=campground.location%></small>
                                 </p>
-                                <a class="btn btn-primary "href = "/campgrounds/<%=campground._id%>">View <%=campground.title%></a>
+                                <a class="btn btn-primary "href = "/campgrounds/<%=campground._id%>">檢視 <%=campground.title%></a>
                             </div>
                         </div>
                     </div>
