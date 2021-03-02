@@ -98,7 +98,7 @@ app.use(express.static(path.join(__dirname,'public')))
 //加入此行可以讓整隻程式運用public資料夾裡面的資料
 
 app.get('/',(req,res)=>{
-    res.send('home')
+   res.render('home')
 })
 
 
