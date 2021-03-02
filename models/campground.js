@@ -15,6 +15,8 @@ ImageSchema.virtual('thumbnail').get(function(){  //只要有呼叫 <%=img.thumb
     return this.url.replace('/upload','/upload/w_200');
 });
 
+const opts = { toJSON: { virtuals: true } };
+
 const CampgroundSchema = new Schema({
     title: String,
     images: [ImageSchema],
@@ -41,7 +43,16 @@ const CampgroundSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Review'
     }]
+},opts);
+
+
+CampgroundSchema.virtual('properties.popUpMarkUp').get(function(){  //當呼叫properties.popUpMarkUp傳給地圖使用
+    return `
+    <strong><a href="/campgrounds/${this._id}">${this.title}</a><strong>
+    <p>${this.description.substring(0,20)}...</p>`
 });
+
+
 
 CampgroundSchema.post('findOneAndDelete', async function (doc) {
     //findOneAndDelete 叫做querymiddleware 如果頁面有叫此剛要做這件事 就會順便刪掉review
