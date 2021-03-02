@@ -1,1 +1,1 @@
-# use nodemon app.js
+# in cmd use nodemon app.js
