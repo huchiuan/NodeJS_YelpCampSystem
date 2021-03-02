@@ -18,6 +18,17 @@ ImageSchema.virtual('thumbnail').get(function(){  //只要有呼叫 <%=img.thumb
 const CampgroundSchema = new Schema({
     title: String,
     images: [ImageSchema],
+    geometry: { //moogose的location文件
+        type: {
+          type: String, 
+          enum: ['Point'], 
+          required: true
+        },
+        coordinates: {
+          type: [Number],
+          required: true
+        }
+      },
     price: Number,
     description: String,
     location: String,
