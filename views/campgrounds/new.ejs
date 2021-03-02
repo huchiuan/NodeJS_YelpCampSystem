@@ -1,65 +1,70 @@
 <% layout('layouts/boilerplate')%>
 
 <div class="row">
-    <h1 class="text-center">New Campground</h1>
-    <div class="col-6 offset-4">
-        <form action="/campgrounds" method="POST" novalidate class="validated-form" enctype="multipart/form-data">
-            <!--  novalidate 關閉表單的驗證功能 用boostrap 的required-->
-            <div class="mb-3">
-                <label class="form-label" for="title">Title</label>
-                <input class="form-control" type="text" id="title" name="campground[title]" required>
-                <div class="valid-feedback">
-                    內容正確!
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label" for="location">Location</label>
-                <input class="form-control" type="text" id="location" name="campground[location]" required>
-                <div class="valid-feedback">
-                    內容正確!
-                </div>
-            </div>
-            <!-- <input type="file" name="image" id="" multiple> -->
+    <h1 class="text-center">新建營地</h1>
+    <div class="col-6 offset-3">
+        <div class="card shadow">
+            <div class="card-body">
+                <form action="/campgrounds" method="POST" novalidate class="validated-form"
+                    enctype="multipart/form-data">
+                    <!--  novalidate 關閉表單的驗證功能 用boostrap 的required-->
+                    <div class="mb-3">
+                        <label class="form-label" for="title">標題</label>
+                        <input class="form-control" type="text" id="title" name="campground[title]" required>
+                        <div class="valid-feedback">
+                            內容正確!
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="location">位置</label>
+                        <input class="form-control" type="text" id="location" name="campground[location]" required>
+                        <div class="valid-feedback">
+                            內容正確!
+                        </div>
+                    </div>
+                    <!-- <input type="file" name="image" id="" multiple> -->
 
-           
 
-            <!-- <div class="mb-3">
+
+                    <!-- <div class="mb-3">
                 <label class="form-label"for="image">Image URL</label>
                 <input class="form-control"type="text" id="image" name ="campground[image]" required>
                 <div class="valid-feedback">
                     內容正確!
                 </div>
             </div> -->
-            <div class="mb-3">
-                <label class="form-label" for="price">Camoground Price</label>
-                <div class="input-group">
-                    <!--沒用這個包起來的化，在葉面上 下面那兩行會分開。-->
-                    <span class="input-group-text" id="price-label">$</span>
-                    <input type="text" class="form-control" id="price" placeholder="0.00" aria-label="price"
-                        aria-describedby="price-label" name="campground[price]" required>
-                    <div class="valid-feedback">
-                        內容正確!
+                    <div class="mb-3">
+                        <label class="form-label" for="price">營地價格</label>
+                        <div class="input-group">
+                            <!--沒用這個包起來的化，在葉面上 下面那兩行會分開。-->
+                            <span class="input-group-text" id="price-label">$</span>
+                            <input type="text" class="form-control" id="price" placeholder="0.00" aria-label="price"
+                                aria-describedby="price-label" name="campground[price]" required>
+                            <div class="valid-feedback">
+                                內容正確!
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label" for="description">description</label>
-                <textarea class="form-control" type="text" id="description" name="campground[description]"
-                    required> </textarea>
-                <div class="valid-feedback">
-                    內容正確!
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="description">敘述</label>
+                        <textarea class="form-control" type="text" id="description" name="campground[description]"
+                            required> </textarea>
+                        <div class="valid-feedback">
+                            內容正確!
+                        </div>
 
-            </div>
-            <div class="mb-3">
-                <label for="formFileMultiple" class="form-label">選擇要上傳之圖片</label>
-                <input class="form-control" type="file" id="image"  name="image" multiple>
-              </div>
-            <div class="mb-3">
-                <button class="btn btn-success">Add campground</button>
-            </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="formFileMultiple" class="form-label">選擇要上傳之圖片</label>
+                        <input class="form-control" type="file" id="image" name="image" multiple>
+                    </div>
+                    <div class="mb-3">
+                        <button class="btn btn-success">新增營地</button>
+                    </div>
 
-        </form>
-        <a href="/campgrounds">All campgrounds</a>
+                </form>
+                <a href="/campgrounds">所有營地</a>
+            </div>
+        </div>
     </div>
 </div>
