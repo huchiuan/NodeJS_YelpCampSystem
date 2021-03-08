@@ -21,6 +21,7 @@ const userRoutes = require('./routes/user');
 const campgroundsRoutes = require('./routes/campgrounds');
 const reviewsRoutes = require('./routes/reviews');
 
+const mongoSanitize = require('express-mongo-sanitize'); //用套件避免簡單的SQL INJECTION
 
 mongoose.connect('mongodb://localhost:27017/yelp-camp',{
     useNewUrlParser:true,
@@ -45,7 +46,7 @@ app.set('views',path.join(__dirname,'views')); //去views資料夾拿ejs
 
 app.use(express.urlencoded({extended:true})); //可以解析req內的東西
 app.use(methodOverride('_method'));
-
+app.use(mongoSanitize());
 
 const sessionConfig={
    secret: 'thisissecret',///secret(必要選項)：用來簽章 sessionID 的cookie, 可以是一secret字串或是多個secret組成的一個陣列。

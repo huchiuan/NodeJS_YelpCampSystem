@@ -7,14 +7,14 @@
         <form action="/campgrounds/<%=campground._id%>?_method=PUT" method = "POST" novalidate class="validated-form"
             enctype="multipart/form-data">
             <div class="mb-3">
-                <label class="form-label"for="title">Title</label>
+                <label class="form-label"for="title">標題</label>
                 <input class="form-control" type="text" id="title" name ="campground[title]" required value="<%=campground.title%>">
                 <div class="valid-feedback">
                     內容正確!
                 </div>
             </div>
             <div class="mb-3">
-                <label class="form-label"for="location">Location</label>
+                <label class="form-label"for="location">位置</label>
                 <input class="form-control"type="text" id="location" name ="campground[location]" required value="<%=campground.location%>">
                 <div class="valid-feedback">
                     內容正確!
@@ -22,7 +22,7 @@
             </div>
            
             <div class="mb-3">
-                <label class="form-label"for="price">Camoground Price</label>
+                <label class="form-label"for="price">每晚價格</label>
                 <div class="input-group"><!--沒用這個包起來的化，在葉面上 下面那兩行會分開。-->
                     <span class="input-group-text" id="price-label">$</span>
                     <input type="text" class="form-control" id="price"
@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label class="form-label"for="description">Desciption</label>
+                <label class="form-label"for="description">敘述</label>
                 <textarea class="form-control"type="text" id="description" name ="campground[description]" required><%=campground.description%></textarea>
                 <div class="valid-feedback">
                     內容正確!
@@ -56,7 +56,7 @@
                 <% })%>
             </div>
             <div class="mb-3">
-                <button class="btn btn-info">Update campground</button>
+                <button class="btn btn-info">更新營地資訊</button>
             </div>
             
         </form>

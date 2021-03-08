@@ -10,7 +10,7 @@ const ImageSchema= new Schema({
     filename: String
 
 })
-
+// 接著可設定一些 virtual 的屬性，方便使用，但這些屬性不會存進 database。
 ImageSchema.virtual('thumbnail').get(function(){  //只要有呼叫 <%=img.thumbnail%> 就做這件事
     return this.url.replace('/upload','/upload/w_200');
 });
@@ -45,7 +45,7 @@ const CampgroundSchema = new Schema({
     }]
 },opts);
 
-
+// 接著可設定一些 virtual 的屬性，方便使用，但這些屬性不會存進 database。
 CampgroundSchema.virtual('properties.popUpMarkUp').get(function(){  //當呼叫properties.popUpMarkUp傳給地圖使用
     return `
     <strong><a href="/campgrounds/${this._id}">${this.title}</a><strong>
