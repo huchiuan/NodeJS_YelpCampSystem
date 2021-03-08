@@ -1,6 +1,7 @@
-if(process.env.NODE_ENV !=="produvtion"){
-   require('dotenv').config()
-}
+// if(process.env.NODE_ENV !=="produvtion"){
+//    require('dotenv').config()
+// }
+require('dotenv').config()
 
 
 const express = require('express');
@@ -17,13 +18,21 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const User = require('./models/user');
 
+
+
+const MongoDBStore = require('connect-mongo').default;;
+
+
 const userRoutes = require('./routes/user');
 const campgroundsRoutes = require('./routes/campgrounds');
 const reviewsRoutes = require('./routes/reviews');
 
 const mongoSanitize = require('express-mongo-sanitize'); //用套件避免簡單的SQL INJECTION
+const helmet = require('helmet');
 
-mongoose.connect('mongodb://localhost:27017/yelp-camp',{
+const dbUrl=process.env.DB_URL;
+//'mongodb://localhost:27017/yelp-camp'
+mongoose.connect(dbUrl,{
     useNewUrlParser:true,
     useCreateIndex:true,
     useUnifiedTopology:true,
@@ -48,13 +57,30 @@ app.use(express.urlencoded({extended:true})); //可以解析req內的東西
 app.use(methodOverride('_method'));
 app.use(mongoSanitize());
 
+
+// const store =  MongoDBStore.create() ({
+//    url:dbUrl,
+//    secret: 'thisissecret',
+//    touchAfter:24*60*60
+// })
+
+// store.on("error",function(e){
+//    console.log("session store error",e)
+// })
+
 const sessionConfig={
+   store:MongoDBStore.create({
+      mongoUrl: dbUrl,
+      touchAfter: 24 * 3600 // time period in seconds
+    }),
+   name:'session',
    secret: 'thisissecret',///secret(必要選項)：用來簽章 sessionID 的cookie, 可以是一secret字串或是多個secret組成的一個陣列。
    //如果是陣列, 只有第一個元素會被 簽到 sessionID cookie裡。而在驗證請求中的簽名時，才會考慮所有元素。
    resave:false, //resave：強制將session存回 session store, 即使它沒有被修改。預設是 true
    saveUninitialized:true, //saveUninitialized：強制將未初始化的session存回 session store，未初始化的意思是它是新的而且未被修改。
    cookie: {
       httpOnly:true,
+      //secure:true,
       expires:Date.now() +1000*60*60*24*7,  
       //expires (日期) cookie的到期日，超過此日期，即失效。
       //httpOnly (布林) 標記此cookie只能從web server　訪問，以避免不正確的進入來取得竄改。
@@ -64,6 +90,53 @@ const sessionConfig={
 }
 app.use(session(sessionConfig));
 app.use(flash());  //有時候某些欄位會是透過後端傳送提示訊息過來，但是這些提示訊息通常只會顯示一次，所以這邊就會使用一個套件 connect-flash
+app.use(helmet());
+
+const scriptSrcUrls = [
+   "https://stackpath.bootstrapcdn.com/",
+   "https://api.tiles.mapbox.com/",
+   "https://api.mapbox.com/",
+   "https://kit.fontawesome.com/",
+   "https://cdnjs.cloudflare.com/",
+   "https://cdn.jsdelivr.net",
+];
+const styleSrcUrls = [
+   "https://kit-free.fontawesome.com/",
+   "https://stackpath.bootstrapcdn.com/",
+   "https://api.mapbox.com/",
+   "https://api.tiles.mapbox.com/",
+   "https://fonts.googleapis.com/",
+   "https://use.fontawesome.com/",
+   "https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css",
+];
+const connectSrcUrls = [
+   "https://api.mapbox.com/",
+   "https://a.tiles.mapbox.com/",
+   "https://b.tiles.mapbox.com/",
+   "https://events.mapbox.com/",
+];
+
+const fontSrcUrls = [];
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: [],
+            connectSrc: ["'self'", ...connectSrcUrls],
+            scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+            styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+            workerSrc: ["'self'", "blob:"],
+            objectSrc: [],
+            imgSrc: [
+                "'self'",
+                "blob:",
+                "data:",
+                "https://images.unsplash.com/",
+                "https://res.cloudinary.com/"
+            ],
+            fontSrc: ["'self'", ...fontSrcUrls],
+        },
+    })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());//app.use(session(sessionConfig));要比此行早用 文件說的
