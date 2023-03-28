@@ -20,9 +20,9 @@ const User = require('./models/user');
 
 
 
-const MongoDBStore = require('connect-mongo').default;;
-
-
+// const MongoDBStore = require('connect-mongo').default;;
+// const MongoDBStore = require('connect-mongodb-session')(session);
+const MongoDBStore = require('connect-mongo');
 const userRoutes = require('./routes/user');
 const campgroundsRoutes = require('./routes/campgrounds');
 const reviewsRoutes = require('./routes/reviews');
