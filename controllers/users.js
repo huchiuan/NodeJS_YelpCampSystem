@@ -37,9 +37,12 @@ module.exports.renderLogin=(req,res)=>{
     res.redirect(redirectUrl);
  }
  
-
- module.exports.logout =(req,res)=>{
-    req.logout();
-    req.flash('success','登出成功!');
-    res.redirect('/campgrounds');
-}
+ module.exports.logout = (req, res, next) => {
+    req.logout(function(err) {
+        if (err) { 
+            return next(err); // 如果登出過程中出現錯誤，交給 Express 錯誤處理程序
+        }
+        req.flash('success', '登出成功!');
+        res.redirect('/campgrounds');
+    });
+};
